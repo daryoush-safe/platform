@@ -1,0 +1,33 @@
+# TODO: Added later: `web` (frontend) and `ml` (training arena)
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+  labels:
+    app.kubernetes.io/part-of: t2s
+    t2s.io/tier: control-plane
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/part-of: t2s
+    t2s.io/tier: observability
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: data
+  labels:
+    app.kubernetes.io/part-of: t2s
+    t2s.io/tier: data
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apps
+  labels:
+    app.kubernetes.io/part-of: t2s
+    t2s.io/tier: app
