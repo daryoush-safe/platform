@@ -66,3 +66,5 @@ spec:
         - ALTER DEFAULT PRIVILEGES FOR ROLE user_service_role IN SCHEMA auth GRANT SELECT ON TABLES TO debezium_role;
         - ALTER DEFAULT PRIVILEGES FOR ROLE subscription_service_role IN SCHEMA auth GRANT SELECT ON TABLES TO debezium_role;
         - ALTER DEFAULT PRIVILEGES FOR ROLE db_service_role IN SCHEMA dbservice GRANT SELECT ON TABLES TO debezium_role;
+        - GRANT user_service_role TO debezium_role;
+        - GRANT subscription_service_role TO debezium_role;
