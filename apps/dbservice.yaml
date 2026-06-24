@@ -1,6 +1,6 @@
 image:
-  repository: dbservice
-  tag: dev
+  repository: ghcr.io/daryoush-safe/db-service
+  tag: sha-ca94cb74e04d6875906251907d96ff1cb8d46846
 
 app:
   port: 8003
