@@ -1,0 +1,56 @@
+image:
+  repository: ""
+  tag: ""
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+app:
+  module: src.main:app
+  port: 8000
+
+migrations:
+  enabled: true
+  command: ["alembic", "upgrade", "head"]
+
+env: {}
+
+existingSecret: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+metrics:
+  serviceMonitor:
+    enabled: false
+    path: /metrics
+    interval: 30s
+
+probes:
+  liveness:
+    path: /healthz
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  readiness:
+    path: /readyz
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+ingress:
+  enabled: false
+  className: traefik
+  host: ""
+  annotations: {}
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

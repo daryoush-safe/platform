@@ -1,0 +1,5 @@
+mirrors:
+  docker.io:
+    endpoint:
+      - "https://docker.arvancloud.ir"
+      - "https://mirror-docker.runflare.com"
