@@ -1,0 +1,33 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaConnect
+metadata:
+  name: connect
+  namespace: data
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 4.1.2
+  replicas: 1
+  image: debezium-connect:3.5.2
+  bootstrapServers: kafka-kafka-bootstrap:9092
+  groupId: connect-cluster
+  offsetStorageTopic: connect-cluster-offsets
+  configStorageTopic: connect-cluster-configs
+  statusStorageTopic: connect-cluster-status
+  config:
+    config.storage.replication.factor: 1
+    offset.storage.replication.factor: 1
+    status.storage.replication.factor: 1
+    config.providers: directory
+    config.providers.directory.class: org.apache.kafka.common.config.provider.DirectoryConfigProvider
+  template:
+    pod:
+      volumes:
+        - name: pg-creds
+          secret:
+            secretName: pg-debezium-role
+    connectContainer:
+      volumeMounts:
+        - name: pg-creds
+          mountPath: /mnt/pg-creds
+          readOnly: true
