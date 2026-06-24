@@ -1,5 +1,3 @@
-#   helm install <service> platform/charts/microservice -n apps -f platform/apps/<service>.yaml
-
 image:
   repository: ""
   tag: ""

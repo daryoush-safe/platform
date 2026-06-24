@@ -3,7 +3,6 @@ image:
   tag: dev
 
 app:
-  module: DBService.src.main:app
   port: 8003
 
 existingSecret: dbservice-secrets

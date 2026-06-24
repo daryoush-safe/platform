@@ -3,7 +3,6 @@ image:
   tag: dev
 
 app:
-  module: src.main:app
   port: 8000
 
 existingSecret: userservice-secrets
