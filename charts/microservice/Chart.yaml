@@ -1,0 +1,9 @@
+apiVersion: v2
+name: microservice
+description: >-
+  Reusable chart for a fastapi_ms FastAPI microservice — Deployment (with an
+  alembic-migration initContainer), Service, optional ServiceMonitor, and optional
+  Ingress. Deployed once per service with platform/apps/<service>.yaml.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

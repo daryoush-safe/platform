@@ -1,0 +1,23 @@
+image:
+  repository: subscriptionservice
+  tag: dev
+
+app:
+  module: src.main:app
+  port: 8001
+
+existingSecret: subscriptionservice-secrets
+
+env:
+  APP_NAME: SubscriptionService
+  APP_HOST: "0.0.0.0"
+  APP_PORT: "8001"
+  KAFKA_BOOTSTRAP_SERVERS: kafka-kafka-bootstrap.data.svc.cluster.local:9092
+  DEBUG: "false"
+  DB_ECHO: "false"
+  DB_POOL_SIZE: "5"
+  DB_MAX_OVERFLOW: "10"
+  JWT_ALGORITHM: HS256
+  STRIPE_SUCCESS_URL: http://localhost:3000/success
+  STRIPE_CANCEL_URL: http://localhost:3000/cancel
+  CORS_ORIGINS: http://localhost:3000
