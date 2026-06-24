@@ -1,0 +1,68 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg
+  namespace: data
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  imagePullPolicy: IfNotPresent
+
+  storage:
+    size: 5Gi
+    storageClass: local-path
+
+  postgresql:
+    parameters:
+      wal_level: logical
+      max_replication_slots: "10"
+      max_wal_senders: "10"
+
+  managed:
+    roles:
+      - name: user_service_role
+        ensure: present
+        login: true
+        replication: true
+        passwordSecret: { name: pg-user-service-role }
+      - name: subscription_service_role
+        ensure: present
+        login: true
+        replication: true
+        passwordSecret: { name: pg-subscription-service-role }
+      - name: db_service_role
+        ensure: present
+        login: true
+        replication: true
+        passwordSecret: { name: pg-db-service-role }
+      - name: debezium_role
+        ensure: present
+        login: true
+        replication: true
+        passwordSecret: { name: pg-debezium-role }
+
+  bootstrap:
+    initdb:
+      database: fastapi_ms
+      owner: app
+      postInitSQL:
+        - CREATE ROLE user_service_role LOGIN REPLICATION;
+        - CREATE ROLE subscription_service_role LOGIN REPLICATION;
+        - CREATE ROLE db_service_role LOGIN REPLICATION;
+        - CREATE ROLE debezium_role LOGIN REPLICATION;
+      postInitApplicationSQL:
+        - CREATE SCHEMA IF NOT EXISTS auth;
+        - CREATE SCHEMA IF NOT EXISTS dbservice;
+        - CREATE EXTENSION IF NOT EXISTS pgcrypto;
+        - GRANT CREATE ON DATABASE fastapi_ms TO user_service_role;
+        - GRANT CREATE ON DATABASE fastapi_ms TO subscription_service_role;
+        - GRANT CREATE ON DATABASE fastapi_ms TO debezium_role;
+        - GRANT CREATE ON DATABASE fastapi_ms TO db_service_role;
+        - GRANT USAGE, CREATE ON SCHEMA auth TO user_service_role;
+        - GRANT USAGE, CREATE ON SCHEMA auth TO subscription_service_role;
+        - GRANT USAGE ON SCHEMA auth TO debezium_role;
+        - GRANT USAGE, CREATE ON SCHEMA dbservice TO db_service_role;
+        - GRANT USAGE ON SCHEMA dbservice TO debezium_role;
+        - ALTER DEFAULT PRIVILEGES FOR ROLE user_service_role IN SCHEMA auth GRANT SELECT ON TABLES TO debezium_role;
+        - ALTER DEFAULT PRIVILEGES FOR ROLE subscription_service_role IN SCHEMA auth GRANT SELECT ON TABLES TO debezium_role;
+        - ALTER DEFAULT PRIVILEGES FOR ROLE db_service_role IN SCHEMA dbservice GRANT SELECT ON TABLES TO debezium_role;
