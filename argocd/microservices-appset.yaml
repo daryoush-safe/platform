@@ -12,7 +12,7 @@ spec:
           - path: "apps/values/*.yaml"
   template:
     metadata:
-      name: "{{path.basenameNormalized}}"
+      name: "{{path.filenameNormalized}}"
     spec:
       project: default
       sources:
@@ -21,7 +21,7 @@ spec:
           path: charts/microservice
           helm:
             valueFiles:
-              - $values/{{path.basename}}
+              - $values/{{path.filename}}
         - repoURL: https://github.com/daryoush-safe/platform.git
           targetRevision: master
           path: apps/values
