@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: microservices
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/daryoush-safe/platform.git
+        revision: master
+        files:
+          - path: "apps/values/*.yaml"
+  template:
+    metadata:
+      name: "{{path.basenameNormalized}}"
+    spec:
+      project: default
+      sources:
+        - repoURL: https://github.com/daryoush-safe/platform.git
+          targetRevision: master
+          path: charts/microservice
+          helm:
+            valueFiles:
+              - $values/{{path.basename}}
+        - repoURL: https://github.com/daryoush-safe/platform.git
+          targetRevision: master
+          path: apps/values
+          ref: values
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: apps
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

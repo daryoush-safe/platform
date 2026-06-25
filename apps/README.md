@@ -27,13 +27,20 @@ kubectl apply -f apps/sealed-secret-userservice.yaml \
               -f apps/sealed-secret-dbservice.yaml      # controller unseals → <svc>-secrets
 ```
 
-## 2. Deploy the services
+## 2. Deploy the services (GitOps, via Argo CD)
+Values files moved to `apps/values/<svc>.yaml`. An `ApplicationSet`
+(`argocd/microservices-appset.yaml`) globs that directory and creates one Argo CD
+`Application` per file automatically — add a new `apps/values/<svc>.yaml`, commit, push,
+and it deploys with no manual step. See `argocd/README.md`.
+
 The chart runs `alembic upgrade head` in an initContainer, then `uvicorn` in the main
 container (both `envFrom` the Secret + ConfigMap).
+
+Manual `helm install` (bootstrap-only / break-glass, bypasses git):
 ```bash
-helm install userservice         charts/microservice -n apps -f apps/userservice.yaml
-helm install subscriptionservice charts/microservice -n apps -f apps/subscriptionservice.yaml
-helm install dbservice           charts/microservice -n apps -f apps/dbservice.yaml
+helm install userservice         charts/microservice -n apps -f apps/values/userservice.yaml
+helm install subscriptionservice charts/microservice -n apps -f apps/values/subscriptionservice.yaml
+helm install dbservice           charts/microservice -n apps -f apps/values/dbservice.yaml
 ```
 
 ## Verify
