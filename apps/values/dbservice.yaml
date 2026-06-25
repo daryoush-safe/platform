@@ -1,12 +1,9 @@
 image:
   repository: ghcr.io/daryoush-safe/db-service
-  tag: sha-ca94cb74e04d6875906251907d96ff1cb8d46846
-
+  tag: sha-b28d7d9c1bfbb6e1160fa68127408b4051255a56
 app:
   port: 8003
-
 existingSecret: dbservice-secrets
-
 env:
   APP_NAME: DBService
   APP_HOST: "0.0.0.0"
