@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/daryoush-safe/user-service
-  tag: sha-b28d7d9c1bfbb6e1160fa68127408b4051255a56
+  tag: sha-2f6c1921147cd6cde5a1c9a0e2fc5962c542e67d
 app:
   port: 8000
 existingSecret: userservice-secrets
@@ -17,7 +17,6 @@ env:
   JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /user
-
 ingress:
   path: /user
   stripPrefix: true
