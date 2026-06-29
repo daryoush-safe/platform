@@ -17,3 +17,8 @@ env:
   STRIPE_SUCCESS_URL: http://localhost:3000/success
   STRIPE_CANCEL_URL: http://localhost:3000/cancel
   CORS_ORIGINS: http://localhost:3000
+  ROOT_PATH: /subscription
+
+ingress:
+  path: /subscription
+  stripPrefix: true
