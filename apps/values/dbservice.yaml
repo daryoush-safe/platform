@@ -14,3 +14,8 @@ env:
   DB_MAX_OVERFLOW: "10"
   PRUNER_BASE_URL: http://pruner.ml.svc.cluster.local:8000
   CORS_ORIGINS: http://localhost:3000
+  ROOT_PATH: /db
+
+ingress:
+  path: /db
+  stripPrefix: true

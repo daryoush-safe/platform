@@ -38,9 +38,11 @@ probes:
     periodSeconds: 10
 
 ingress:
-  enabled: false
+  enabled: true
   className: traefik
-  host: ""
+  host: api.local
+  path: /
+  stripPrefix: false
   annotations: {}
 
 resources:

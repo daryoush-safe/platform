@@ -16,3 +16,8 @@ env:
   JWT_ALGORITHM: HS256
   JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
   CORS_ORIGINS: http://localhost:3000
+  ROOT_PATH: /user
+
+ingress:
+  path: /user
+  stripPrefix: true
