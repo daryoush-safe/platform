@@ -11,7 +11,7 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: monitoring
+  name: observability
   labels:
     app.kubernetes.io/part-of: t2s
     t2s.io/tier: observability
