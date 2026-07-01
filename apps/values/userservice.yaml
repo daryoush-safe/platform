@@ -20,7 +20,8 @@ env:
 metrics:
   serviceMonitor:
     enabled: true
-    path: /user/metrics
+    additionalLabels:
+      release: observability
 ingress:
   path: /user
   stripPrefix: true
