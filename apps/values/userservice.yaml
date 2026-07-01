@@ -19,7 +19,8 @@ env:
   ROOT_PATH: /user
 metrics:
   serviceMonitor:
-    enabled: false
+    enabled: true
+    path: /user/metrics
 ingress:
   path: /user
   stripPrefix: true
