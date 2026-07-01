@@ -5,6 +5,9 @@ metadata:
   name: {{ include "microservice.fullname" . }}
   labels:
     {{- include "microservice.labels" . | nindent 4 }}
+    {{- with .Values.metrics.serviceMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   selector:
     matchLabels:

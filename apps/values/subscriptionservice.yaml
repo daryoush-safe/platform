@@ -21,7 +21,8 @@ env:
 metrics:
   serviceMonitor:
     enabled: true
-    path: /subscription/metrics
+    additionalLabels:
+      release: observability
 ingress:
   path: /subscription
   stripPrefix: true

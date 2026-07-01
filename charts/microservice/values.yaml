@@ -26,6 +26,7 @@ metrics:
     enabled: false
     path: /metrics
     interval: 30s
+    additionalLabels: {}
 
 probes:
   liveness:
