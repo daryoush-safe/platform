@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/daryoush-safe/subscription-service
-  tag: sha-2f6c1921147cd6cde5a1c9a0e2fc5962c542e67d
+  tag: sha-0c818b7e6207093410a678d1012c59061b9a7cdb
 app:
   port: 8001
 existingSecret: subscriptionservice-secrets
@@ -18,11 +18,9 @@ env:
   STRIPE_CANCEL_URL: http://localhost:3000/cancel
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /subscription
-
 metrics:
   serviceMonitor:
     enabled: false
-
 ingress:
   path: /subscription
   stripPrefix: true

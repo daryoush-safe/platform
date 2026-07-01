@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/daryoush-safe/db-service
-  tag: sha-2f6c1921147cd6cde5a1c9a0e2fc5962c542e67d
+  tag: sha-0c818b7e6207093410a678d1012c59061b9a7cdb
 app:
   port: 8003
 existingSecret: dbservice-secrets
@@ -15,11 +15,9 @@ env:
   PRUNER_BASE_URL: http://pruner.ml.svc.cluster.local:8000
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /db
-
 metrics:
   serviceMonitor:
     enabled: false
-
 ingress:
   path: /db
   stripPrefix: true
