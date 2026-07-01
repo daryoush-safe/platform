@@ -17,6 +17,11 @@ env:
   JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /user
+
+metrics:
+  serviceMonitor:
+    enabled: false
+
 ingress:
   path: /user
   stripPrefix: true
