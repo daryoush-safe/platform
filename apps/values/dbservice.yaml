@@ -17,7 +17,8 @@ env:
   ROOT_PATH: /db
 metrics:
   serviceMonitor:
-    enabled: false
+    enabled: true
+    path: /db/metrics
 ingress:
   path: /db
   stripPrefix: true

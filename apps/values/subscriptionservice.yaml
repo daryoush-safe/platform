@@ -20,7 +20,8 @@ env:
   ROOT_PATH: /subscription
 metrics:
   serviceMonitor:
-    enabled: false
+    enabled: true
+    path: /subscription/metrics
 ingress:
   path: /subscription
   stripPrefix: true
