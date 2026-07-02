@@ -7,11 +7,10 @@ serviceMonitor:
 
 config:
   datasource:
-    host: postgres.data.svc.cluster.local
+    host: pg-rw.data.svc.cluster.local
     port: "5432"
-    user: postgres
+    user: postgres_exporter
     database: postgres
-    
     passwordSecret:
       name: secret-postgres-exporter
       key: password
