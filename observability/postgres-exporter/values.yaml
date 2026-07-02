@@ -1,0 +1,16 @@
+serviceMonitor:
+  enabled: true
+  namespace: observability
+  interval: 30s
+  labels:
+    release: observability
+
+config:
+  datasource:
+    host: pg-rw.data.svc.cluster.local
+    port: "5432"
+    user: postgres_exporter
+    database: postgres
+    passwordSecret:
+      name: secret-postgres-exporter
+      key: password

@@ -40,6 +40,10 @@ spec:
         login: true
         replication: true
         passwordSecret: { name: pg-debezium-role }
+      - name: postgres_exporter
+        ensure: present
+        login: true
+        passwordSecret: { name: pg-postgres-exporter-role }
 
   bootstrap:
     initdb:
@@ -50,6 +54,7 @@ spec:
         - CREATE ROLE subscription_service_role LOGIN REPLICATION;
         - CREATE ROLE db_service_role LOGIN REPLICATION;
         - CREATE ROLE debezium_role LOGIN REPLICATION;
+        - CREATE ROLE postgres_exporter LOGIN;
       postInitApplicationSQL:
         - CREATE SCHEMA IF NOT EXISTS auth;
         - CREATE SCHEMA IF NOT EXISTS dbservice;
@@ -68,3 +73,4 @@ spec:
         - ALTER DEFAULT PRIVILEGES FOR ROLE db_service_role IN SCHEMA dbservice GRANT SELECT ON TABLES TO debezium_role;
         - GRANT user_service_role TO debezium_role;
         - GRANT subscription_service_role TO debezium_role;
+        - GRANT pg_monitor TO postgres_exporter;
