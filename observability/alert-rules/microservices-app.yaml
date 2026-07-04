@@ -1,0 +1,73 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: microservices-app
+  namespace: observability
+  labels:
+    app: kube-prometheus-stack
+    release: observability
+spec:
+  groups:
+  - name: microservices.app.rules
+    rules:
+      - alert: MicroservicesHigh5xxErrorRate
+        expr: |
+          (
+            sum by (job) (rate(http_requests_total{namespace="apps", status="5xx"}[5m]))
+            /
+            sum by (job) (rate(http_requests_total{namespace="apps"}[5m]))
+          ) > 0.05
+          and
+          sum by (job) (increase(http_requests_total{namespace="apps", status="5xx"}[5m])) > 3
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: High 5xx error rate ({{ $labels.job }})
+          description: "{{ $labels.job }} is returning {{ $value | humanizePercentage }} 5xx responses (>5% and >3 errors/5m)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MicroservicesHighRequestLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum by (job, le) (rate(http_request_duration_seconds_bucket{namespace="apps"}[5m]))
+          ) > 1
+          and
+          sum by (job) (rate(http_request_duration_seconds_count{namespace="apps"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High request latency ({{ $labels.job }})
+          description: "{{ $labels.job }} p95 request latency is {{ $value | humanizeDuration }} (> 1s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MicroservicesHighDbQueryLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum by (job, operation, le) (rate(db_query_duration_seconds_bucket{namespace="apps"}[5m]))
+          ) > 0.5
+          and
+          sum by (job, operation) (rate(db_query_duration_seconds_count{namespace="apps"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Slow DB queries ({{ $labels.job }} / {{ $labels.operation }})
+          description: "{{ $labels.job }} p95 {{ $labels.operation }} query latency is {{ $value | humanizeDuration }} (> 0.5s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MicroservicesDbPoolNearSaturation
+        expr: max by (job) (db_active_connections{namespace="apps", state="used"}) >= 12
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: DB connection pool near saturation ({{ $labels.job }})
+          description: "{{ $labels.job }} is using {{ $value }} of 15 pool connections (>= 80%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MicroservicesDbPoolExhausted
+        expr: max by (job) (db_active_connections{namespace="apps", state="used"}) >= 15
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: DB connection pool exhausted ({{ $labels.job }})
+          description: "{{ $labels.job }} has exhausted its DB connection pool ({{ $value }}/15) - queries will queue or time out on checkout\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

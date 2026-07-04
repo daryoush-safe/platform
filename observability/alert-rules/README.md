@@ -92,6 +92,27 @@ Group name fixed: `kafka.exporter.rules` → `postgresql.rules` (copy-paste bug)
 | HostKernelVersionDeviations | **removed** | `info` noise — you patch this box yourself. |
 | CPU / mem / disk / inode / disk-latency / network-errors / temp / clock / conntrack / OOM | kept | All have live series and are genuinely useful on a single physical node. |
 
+## fastapi-app.yaml — your application SLO alerts
+
+Built directly from the metrics your services actually expose
+(`libs/shared_infra/src/shared_infra/metrics.py` +
+`prometheus-fastapi-instrumentator`), verified against the live series in
+Prometheus (label names, `status="5xx"` grouping, `state="used"`, etc.).
+
+| Alert | Sev | Expr summary | Notes / thresholds |
+|---|---|---|---|
+| `FastapiHigh5xxErrorRate` | critical | 5xx / all requests per service > 5% **and** > 3 real 5xx in 5m | The `and > 3` clause is a low-traffic guard so a single fluke error on an idle service doesn't page. |
+| `FastapiHighRequestLatency` | warning | p95 `http_request_duration_seconds` per service > 1s | Health/metrics routes already excluded at the app. Traffic guard avoids reacting to one-off samples. |
+| `FastapiHighDbQueryLatency` | warning | p95 `db_query_duration_seconds` per service+operation > 0.5s | Split by SQL operation (select/insert/update/delete/other) so you see *what* is slow. |
+| `FastapiDbPoolNearSaturation` | warning | `db_active_connections{state="used"}` ≥ 12 | 80% of the pool ceiling. |
+| `FastapiDbPoolExhausted` | critical | `db_active_connections{state="used"}` ≥ 15 | Ceiling = `DB_POOL_SIZE(5)` + `DB_MAX_OVERFLOW(10)`. At this point checkouts queue/time out. Update if a service changes its pool sizing. |
+
+Thresholds (1s / 0.5s / 12 / 15 / 5%) are conservative starting points chosen
+for a low-traffic homelab; tighten them once you have a real traffic baseline.
+
+> Per-service labelling uses `job` (= `userservice` / `dbservice` /
+> `subscriptionservice`). Alerts are scoped to `namespace="apps"`.
+
 ## prometheus-self-monitoring.yaml
 
 | Rule | Change | Why |
