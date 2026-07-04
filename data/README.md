@@ -51,12 +51,30 @@ kubectl wait --for=condition=Ready kafka/kafka -n data --timeout=300s
 ```
 
 ## 5. Debezium (Kafka Connect + connectors)
-The Connect image (Connect runtime + Debezium Postgres plugin) is built locally and imported
-into k3s containerd — **no registry, no Strimzi Kaniko build**. Debezium 3.5.2.Final is the
-match for Kafka 4.1.x (built against Connect 4.1.1, bundles kafka-clients-4.1.2); the old
-3.0.7 pin was for Kafka 3.x and breaks on 4.x. The build is reproducible via `build.sh`:
+`kafka-connect.yaml` references a prebuilt Connect image (Connect runtime + Debezium Postgres
+plugin) via `spec.image` (`docker.io/<DOCKERHUB_USER>/debezium-connect:3.5.2`) — **no Strimzi
+`build:`**, since that needs quay.io (geo-blocked here). The image is built and pushed **manually,
+off-cluster**, then the cluster only pulls it from Docker Hub. Debezium 3.5.2.Final is the match
+for Kafka 4.1.x (built against Connect 4.1.1, bundles kafka-clients-4.1.2); the old 3.0.7 pin was
+for Kafka 3.x and breaks on 4.x.
+
+The image is a Strimzi Kafka base with the plugin dropped into `/opt/kafka/plugins`. Build it once
+on any machine that can reach the base image, e.g.:
+```dockerfile
+FROM quay.io/strimzi/kafka:1.0.1-kafka-4.1.2
+USER root:root
+# extract of debezium-connector-postgres-3.5.2.Final-plugin.tar.gz (Maven Central)
+COPY debezium-connector-postgres/ /opt/kafka/plugins/debezium-postgres/
+RUN chown -R 1001:0 /opt/kafka/plugins/debezium-postgres && chmod -R g+rwX /opt/kafka/plugins/debezium-postgres
+USER 1001
+```
 ```bash
-./platform/data/debezium/build.sh     # downloads plugin, docker build, sudo ctr import
+docker build -t docker.io/<DOCKERHUB_USER>/debezium-connect:3.5.2 .
+docker push  docker.io/<DOCKERHUB_USER>/debezium-connect:3.5.2   # docker login first
+```
+If the repo is **private**, add a pull secret and reference it under
+`spec.template.pod.imagePullSecrets` in `kafka-connect.yaml`. Then:
+```bash
 kubectl apply -f platform/data/debezium/kafka-connect.yaml
 kubectl wait --for=condition=Ready kafkaconnect/connect -n data --timeout=600s
 # sanity: the connector class is registered

@@ -31,6 +31,12 @@ metadata:
 spec:
   kafka:
     version: 4.1.2
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-metrics-config
+          key: kafka-metrics-config.yml
     listeners:
       - name: plain
         port: 9092
