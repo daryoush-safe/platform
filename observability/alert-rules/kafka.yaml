@@ -1,0 +1,38 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kafka-exporter
+  namespace: observability
+  labels:
+    app: kube-prometheus-stack
+    release: observability
+spec:
+  groups:
+  - name: kafka.exporter.rules
+    rules:
+      - alert: KafkaUnderReplicatedPartitions
+        expr: sum(kafka_topic_partition_under_replicated_partition) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Kafka has under-replicated partitions
+          description: "{{ $value }} partition(s) are under-replicated. On this single-broker cluster this usually means a partition is offline / the broker is unhealthy.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: KafkaConsumerGroupLag
+        expr: sum(kafka_consumergroup_lag) by (consumergroup) > 10000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Kafka consumer group lag ({{ $labels.consumergroup }})
+          description: "Consumer group {{ $labels.consumergroup }} is lagging behind ({{ $value }} messages)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: KafkaConsumerGroupNoMembers
+        expr: kafka_consumergroup_members == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Kafka consumer group has no members ({{ $labels.consumergroup }})
+          description: "Consumer group {{ $labels.consumergroup }} has no active members - the consumer may be down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

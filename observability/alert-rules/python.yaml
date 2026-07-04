@@ -1,0 +1,44 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: python
+  namespace: observability
+  labels:
+    app: kube-prometheus-stack
+    release: observability
+spec:
+  groups:
+  - name: python.rules
+    rules:
+      - alert: PythonGCObjectsUncollectable
+        expr: increase(python_gc_objects_uncollectable_total[10m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Python GC uncollectable objects ({{ $labels.namespace }}/{{ $labels.pod }})
+          description: "Python has uncollectable objects ({{ $value }}), potential memory leak via reference cycles\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PythonFileDescriptorsExhaustion
+        expr: (process_open_fds / process_max_fds) * 100 > 85 and process_max_fds > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Python file descriptors exhaustion ({{ $labels.namespace }}/{{ $labels.pod }})
+          description: "Process is running out of file descriptors (> 85% used) - likely a leaked socket/connection\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: FastapiContainerMemoryNearLimit
+        expr: |
+          max by (namespace, pod, container) (
+            container_memory_working_set_bytes{namespace="apps", container!=""}
+            /
+            on (namespace, pod, container)
+            kube_pod_container_resource_limits{namespace="apps", resource="memory"}
+          ) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Container memory near limit ({{ $labels.namespace }}/{{ $labels.pod }})
+          description: "Container {{ $labels.container }} is using > 90% of its memory limit and risks being OOMKilled\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
