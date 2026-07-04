@@ -13,17 +13,17 @@ kubectl rollout status deploy/cnpg-cloudnative-pg -n cnpg-system
 
 ## 2. Postgres role passwords (Sealed Secrets — committed, GitOps-safe)
 Secrets are managed with [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets):
-plaintext `secret-*.unsealed.yaml` sources are **gitignored** (`*.unsealed.yaml`), encrypted
-into `sealed-secret-*.yaml` which are **committed** and safe in git. The controller runs in
+plaintext `roles/secret-*.unsealed.yaml` sources are **gitignored** (`*.unsealed.yaml`), encrypted
+into `roles/sealed-secret-*.yaml` which are **committed** and safe in git. The controller runs in
 `kube-system` (service `sealed-secrets`); decrypts each SealedSecret into a real Secret in-cluster.
 The same passwords are reused by the Step 4 service `DATABASE_URL`s.
 ```bash
 # Edit the plaintext sources (gitignored), then seal. Re-run after any password change.
 KS="kubeseal --controller-name sealed-secrets --controller-namespace kube-system --format yaml"
 for r in user-service-role subscription-service-role db-service-role debezium-role; do
-  $KS < data/postgres/secret-$r.unsealed.yaml > data/postgres/sealed-secret-$r.yaml
+  $KS < data/postgres/roles/secret-$r.unsealed.yaml > data/postgres/roles/sealed-secret-$r.yaml
 done
-kubectl apply -f data/postgres/sealed-secret-*.yaml      # controller unseals → pg-*-role Secrets
+kubectl apply -f data/postgres/roles/      # controller unseals → pg-*-role Secrets
 ```
 
 ## 3. Postgres cluster
