@@ -1,7 +1,8 @@
 # Application services (namespace: `apps`)
 
 UserService, SubscriptionService, DBService — each a release of the parameterized
-`charts/microservice` chart, configured by its `<svc>.yaml` values file. Images are the
+`charts/microservice` chart. Each service owns a directory `apps/<svc>/` holding its
+`values.yaml` and its `sealed-secret.yaml` (+ gitignored `secret.unsealed.yaml`). Images are the
 GHCR CI builds (`ghcr.io/daryoush-safe/<svc>:sha-...`), pinned by tag; bridge them into
 k3s containerd with `docker pull … | sudo k3s ctr images import -` (ghcr is flaky on this
 network — see the k3s image-pull notes).
@@ -9,8 +10,8 @@ network — see the k3s image-pull notes).
 Prereqs: the `data` layer is up (Postgres + Kafka), and the `apps` namespace exists.
 
 ## 1. Secrets (Sealed Secrets — committed, GitOps-safe)
-Same pattern as `data/postgres`: plaintext `secret-*.unsealed.yaml` are **gitignored**,
-the encrypted `sealed-secret-*.yaml` are **committed**. Each service's Secret carries the
+Same pattern as `data/postgres`: each service dir holds a plaintext `secret.unsealed.yaml`
+(**gitignored**) and its encrypted `sealed-secret.yaml` (**committed**). Each service's Secret carries the
 fields its `src/config.py` requires with no default: `DATABASE_URL` + `JWT_SECRET` (all),
 plus `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` (subscription). Non-secret config lives
 in each `<svc>.yaml` `env:` block (rendered to a ConfigMap). `DATABASE_URL` is
@@ -20,27 +21,28 @@ across all three so tokens validate cross-service.
 ```bash
 KS="kubeseal --controller-name sealed-secrets --controller-namespace kube-system --format yaml"
 for svc in userservice subscriptionservice dbservice; do
-  $KS < apps/secret-$svc.unsealed.yaml > apps/sealed-secret-$svc.yaml
+  $KS < apps/$svc/secret.unsealed.yaml > apps/$svc/sealed-secret.yaml
 done
-kubectl apply -f apps/sealed-secret-userservice.yaml \
-              -f apps/sealed-secret-subscriptionservice.yaml \
-              -f apps/sealed-secret-dbservice.yaml      # controller unseals → <svc>-secrets
+# No manual kubectl apply — the ApplicationSet syncs each apps/<svc>/sealed-secret.yaml
+# (see §2); the controller unseals it → <svc>-secrets.
 ```
 
 ## 2. Deploy the services (GitOps, via Argo CD)
-Values files moved to `apps/values/<svc>.yaml`. An `ApplicationSet`
-(`argocd/microservices-appset.yaml`) globs that directory and creates one Argo CD
-`Application` per file automatically — add a new `apps/values/<svc>.yaml`, commit, push,
-and it deploys with no manual step. See `argocd/README.md`.
+Each service lives in `apps/<svc>/` (`values.yaml` + `sealed-secret.yaml`). An `ApplicationSet`
+(`argocd/microservices-appset.yaml`) globs `apps/*/values.yaml` and creates one Argo CD
+`Application` per service directory automatically. Each generated Application is multi-source:
+the `charts/microservice` chart fed `apps/<svc>/values.yaml`, plus the co-located
+`apps/<svc>/sealed-secret.yaml`. Add a new `apps/<svc>/` dir, commit, push, and it deploys —
+secret included — with no manual step. See `argocd/README.md`.
 
 The chart runs `alembic upgrade head` in an initContainer, then `uvicorn` in the main
 container (both `envFrom` the Secret + ConfigMap).
 
 Manual `helm install` (bootstrap-only / break-glass, bypasses git):
 ```bash
-helm install userservice         charts/microservice -n apps -f apps/values/userservice.yaml
-helm install subscriptionservice charts/microservice -n apps -f apps/values/subscriptionservice.yaml
-helm install dbservice           charts/microservice -n apps -f apps/values/dbservice.yaml
+helm install userservice         charts/microservice -n apps -f apps/userservice/values.yaml
+helm install subscriptionservice charts/microservice -n apps -f apps/subscriptionservice/values.yaml
+helm install dbservice           charts/microservice -n apps -f apps/dbservice/values.yaml
 ```
 
 ## Verify

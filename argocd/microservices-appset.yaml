@@ -11,19 +11,24 @@ spec:
         repoURL: https://github.com/daryoush-safe/platform.git
         revision: master
         files:
-          - path: "apps/values/*.yaml"
+          - path: "apps/*/values.yaml"
   template:
     metadata:
-      name: '{{ trimSuffix ".yaml" .path.filename }}'
+      name: '{{ .path.basename }}'
     spec:
       project: default
-      source:
-        repoURL: https://github.com/daryoush-safe/platform.git
-        targetRevision: master
-        path: charts/microservice
-        helm:
-          valueFiles:
-            - ../../apps/values/{{ .path.filename }}
+      sources:
+        - repoURL: https://github.com/daryoush-safe/platform.git
+          targetRevision: master
+          path: charts/microservice
+          helm:
+            valueFiles:
+              - ../../apps/{{ .path.basename }}/values.yaml
+        - repoURL: https://github.com/daryoush-safe/platform.git
+          targetRevision: master
+          path: 'apps/{{ .path.basename }}'
+          directory:
+            include: 'sealed-secret.yaml'
       destination:
         server: https://kubernetes.default.svc
         namespace: apps

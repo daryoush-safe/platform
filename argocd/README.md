@@ -29,10 +29,12 @@ kubectl label secret platform-repo-creds -n argocd argocd.argoproj.io/secret-typ
 
 ## Applications
 
-`microservices-appset.yaml` is an `ApplicationSet` — it globs `apps/values/*.yaml` in this
-repo and creates one Argo CD `Application` per file, named after the file
-(`dbservice.yaml` -> `dbservice`). Add a new service by adding a new values file there and
-pushing; no manual `kubectl apply` needed per service.
+`microservices-appset.yaml` is an `ApplicationSet` — it globs `apps/*/values.yaml` in this
+repo and creates one Argo CD `Application` per service directory, named after the dir
+(`apps/dbservice/` -> `dbservice`). Each Application is multi-source: the `charts/microservice`
+chart fed `apps/<svc>/values.yaml`, plus the co-located `apps/<svc>/sealed-secret.yaml`. Add a
+new service by adding a new `apps/<svc>/` directory and pushing; no manual `kubectl apply`
+needed per service, secret included.
 
 ```bash
 kubectl apply -f platform/argocd/microservices-appset.yaml
