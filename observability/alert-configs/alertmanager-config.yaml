@@ -1,0 +1,57 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: alert-config
+  namespace: observability
+spec:
+  route:
+    receiver: 'null'
+    groupBy: ['alertname']
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 4h
+    routes:
+    - receiver: 'email'
+      matchers:
+      - name: alertname
+        value: PostgresqlDown
+    - receiver: 'email'
+      matchers:
+      - name: alertname
+        value: MicroservicesHigh5xxErrorRate
+    - receiver: 'email'
+      matchers:
+      - name: alertname
+        value: MicroservicesDbPoolExhausted
+    - receiver: 'email'
+      matchers:
+      - name: alertname
+        value: KubernetesPodNotHealthy
+    - receiver: 'email'
+      matchers:
+      - name: alertname
+        value: KubernetesStatefulSetDown
+    - receiver: 'email'
+      matchers:
+      - name: alertname
+        value: KafkaUnderReplicatedPartitions
+    - receiver: 'email'
+      matchers:
+      - name: alertname
+        value: PrometheusAllTargetsMissing
+    - receiver: 'email'
+      matchers:
+      - name: alertname
+        value: HostOutOfDiskSpace
+  receivers:
+  - name: 'null'
+  - name: 'email'
+    emailConfigs:
+    - to: 'daryoosh.safe@gmail.com'
+      from: 'daryoosh.safe@gmail.com'
+      smarthost: 'smtp.gmail.com:587'
+      authUsername: 'daryoosh.safe@gmail.com'
+      authIdentity: 'daryoosh.safe@gmail.com'
+      authPassword:
+        name: gmail-auth
+        key: password
