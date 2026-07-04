@@ -1,8 +1,9 @@
+#!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
 
 DEBEZIUM_VERSION="${DEBEZIUM_VERSION:-3.5.2.Final}"
-IMAGE="${IMAGE:-debezium-connect:3.5.2}"
+IMAGE="${IMAGE:-alossafe/debezium-connect:3.5.2-strimzi}"
 TARBALL="debezium-connector-postgres-${DEBEZIUM_VERSION}-plugin.tar.gz"
 BASE_URL="https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/${DEBEZIUM_VERSION}"
 
@@ -15,7 +16,7 @@ fi
 echo ">> docker build ${IMAGE}"
 docker build -t "${IMAGE}" .
 
-echo ">> importing into k3s containerd (needs sudo)"
-docker save "${IMAGE}" | sudo k3s ctr images import -
+echo ">> pushing ${IMAGE} to registry"
+docker push "${IMAGE}"
 
-echo ">> done: ${IMAGE} is in containerd. KafkaConnect uses imagePullPolicy IfNotPresent."
+echo ">> done: ${IMAGE} pushed. Set spec.image in kafka-connect.yaml to this tag."

@@ -8,8 +8,14 @@ metadata:
 spec:
   version: 4.1.2
   replicas: 1
-  image: debezium-connect:3.5.2
   bootstrapServers: kafka-kafka-bootstrap:9092
+  image: alossafe/debezium-connect:3.5.2-strimzi
+  metricsConfig:
+    type: jmxPrometheusExporter
+    valueFrom:
+      configMapKeyRef:
+        name: connect-metrics
+        key: metrics-config.yml
   groupId: connect-cluster
   offsetStorageTopic: connect-cluster-offsets
   configStorageTopic: connect-cluster-configs
