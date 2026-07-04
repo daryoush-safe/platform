@@ -1,0 +1,83 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: postgres-exporter
+  namespace: observability
+  labels:
+    app: kube-prometheus-stack
+    release: observability
+spec:
+  groups:
+  - name: postgresql.rules
+    rules:
+      - alert: PostgresqlDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Postgresql down (instance {{ $labels.instance }})
+          description: "Postgresql instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlRestarted
+        expr: changes(pg_postmaster_start_time_seconds[15m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Postgresql restarted (instance {{ $labels.instance }})
+          description: "Postgresql restarted\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlExporterError
+        expr: pg_exporter_last_scrape_error > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Postgresql exporter error (instance {{ $labels.instance }})
+          description: "Postgresql exporter is showing scrape errors - a query may be failing\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlTooManyConnections
+        expr: sum by (instance, job, server) (pg_stat_activity_count) > min by (instance, job, server) (pg_settings_max_connections * 0.8)
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Postgresql too many connections (instance {{ $labels.instance }})
+          description: "PostgreSQL instance has too many connections (> 80% of max_connections).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlDeadLocks
+        expr: increase(pg_stat_database_deadlocks{datname!~"template.*|postgres",datid!="0"}[5m]) > 5
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Postgresql dead locks (instance {{ $labels.instance }})
+          description: "PostgreSQL has dead-locks ({{ $value }} in the last 5 minutes)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlHighRollbackRate
+        expr: sum by (namespace,datname,instance) (rate(pg_stat_database_xact_rollback{datname!~"template.*|postgres",datid!="0"}[5m])) / (sum by (namespace,datname,instance) (rate(pg_stat_database_xact_rollback{datname!~"template.*|postgres",datid!="0"}[5m])) + sum by (namespace,datname,instance) (rate(pg_stat_database_xact_commit{datname!~"template.*|postgres",datid!="0"}[5m]))) > 0.05 and (sum by (namespace,datname,instance) (rate(pg_stat_database_xact_commit{datname!~"template.*|postgres",datid!="0"}[5m]))) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Postgresql high rollback rate (instance {{ $labels.instance }})
+          description: "More than 5% of transactions are being rolled back (guarded to only fire under real traffic).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlInactiveReplicationSlot
+        expr: (pg_replication_slots_active == 0) and (pg_replication_is_replica == 0)
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Postgresql inactive replication slot (instance {{ $labels.instance }})
+          description: "Replication slot {{ $labels.slot_name }} is inactive. If this is the Debezium slot, WAL will accumulate and fill the data volume.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlTooManyLocksAcquired
+        expr: ((sum by (instance) (pg_locks_count)) / (pg_settings_max_locks_per_transaction * pg_settings_max_connections)) > 0.20 and (pg_settings_max_locks_per_transaction * pg_settings_max_connections) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Postgresql too many locks acquired (instance {{ $labels.instance }})
+          description: "Too many locks acquired. If frequent, increase max_locks_per_transaction.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
