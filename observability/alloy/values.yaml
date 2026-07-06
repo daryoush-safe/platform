@@ -1,0 +1,20 @@
+alloy:
+  configMap:
+    create: false
+    name: alloy-config
+    key: "."
+
+  mounts:
+    varlog: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+controller:
+  type: daemonset
+  tolerations:
+    - operator: Exists

@@ -1,0 +1,9 @@
+loki.write "default" {
+  endpoint {
+    url = "http://loki-gateway.observability.svc.cluster.local/loki/api/v1/push"
+  }
+
+  external_labels = {
+    cluster = "t2s",
+  }
+}
