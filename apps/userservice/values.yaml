@@ -17,6 +17,7 @@ env:
   JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /user
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy.observability.svc.cluster.local:4317
 metrics:
   serviceMonitor:
     enabled: true

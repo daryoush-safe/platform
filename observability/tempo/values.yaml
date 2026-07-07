@@ -33,7 +33,6 @@ tempo:
       wal:
         path: /var/tempo/wal
 
-  # Only receive OTLP (from Alloy). Drops the chart's default jaeger/zipkin receivers.
   receivers:
     otlp:
       protocols:

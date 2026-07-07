@@ -12,4 +12,4 @@ configMapGenerator:
       - config/destinations.alloy
       - config/logs.alloy
       - config/metrics.alloy
-      # Add config/traces.alloy here later
+      - config/traces.alloy

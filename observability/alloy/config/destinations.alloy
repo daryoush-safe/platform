@@ -18,3 +18,12 @@ prometheus.remote_write "default" {
     }
   }
 }
+
+otelcol.exporter.otlp "default" {
+  endpoint {
+    url = "tempo.observability.svc.cluster.local:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
