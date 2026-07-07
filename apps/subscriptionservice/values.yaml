@@ -18,6 +18,7 @@ env:
   STRIPE_CANCEL_URL: http://localhost:3000/cancel
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /subscription
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy.observability.svc.cluster.local:4317
 metrics:
   serviceMonitor:
     enabled: true

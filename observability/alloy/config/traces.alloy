@@ -1,0 +1,20 @@
+otelcol.receiver.otlp "otlp_receiver" {
+  grpc { endpoint = "0.0.0.0:4317" }
+  http { endpoint = "0.0.0.0:4318" }
+
+  output {
+    metrics = [] 
+    logs    = [] 
+    traces  = [otelcol.processor.batch.batcher.input]
+  }
+}
+
+otelcol.processor.batch "batcher" {
+  timeout             = "1s"
+  send_batch_size      = 8192
+  send_batch_max_size  = 16384
+
+  output {
+    traces = [otelcol.exporter.otlp.default.input]
+  }
+}

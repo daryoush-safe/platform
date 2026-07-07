@@ -9,6 +9,27 @@ extraManifests:
         secret: prometheus-basic-auth
 
 prometheus:
+  prometheusSpec:
+    enableRemoteWriteReceiver: true
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    scrapeConfigSelectorNilUsesHelmValues: false
+
+    # no target uses this label, Prometheus scrapes nothing; Alloy is the sole collector
+    serviceMonitorSelector:
+      matchLabels:
+        release: alloy-collector-only
+    podMonitorSelector:
+      matchLabels:
+        release: alloy-collector-only
+    probeSelector:
+      matchLabels:
+        release: alloy-collector-only
+    scrapeConfigSelector:
+      matchLabels:
+        release: alloy-collector-only
+
   ingress:
     enabled: true
     ingressClassName: traefik
@@ -28,3 +49,27 @@ grafana:
       - grafana.local
     path: /
     pathType: Prefix
+
+  additionalDataSources:
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      access: proxy
+      url: http://tempo.observability.svc.cluster.local:3200
+      jsonData:
+        tracesToLogsV2:
+          datasourceUid: loki
+          filterByTraceID: true
+          spanStartTimeShift: -5m
+          spanEndTimeShift: 5m
+    - name: Loki
+      type: loki
+      uid: loki
+      access: proxy
+      url: http://loki-gateway.observability.svc.cluster.local
+      jsonData:
+        derivedFields:
+          - name: TraceID
+            matcherRegex: '"trace_id":"(\w+)"'
+            datasourceUid: tempo
+            url: '$${__value.raw}'

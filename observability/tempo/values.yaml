@@ -1,0 +1,56 @@
+replicas: 1
+
+tempo:
+  reportingEnabled: false
+  memBallastSizeMbs: 0
+  retention: 72h
+
+  overrides:
+    defaults:
+      ingestion:
+        rate_limit_bytes: 15000000     # 15 MB/s
+        burst_size_bytes: 20000000     # 20 MB
+        max_traces_per_user: 10000
+      global:
+        max_bytes_per_trace: 5000000   # 5 MB
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: t2s-tempo-traces
+        endpoint: s3.ir-thr-at1.arvanstorage.ir
+        region: ir-thr-at1
+        forcepathstyle: true
+        insecure: false
+      wal:
+        path: /var/tempo/wal
+
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  extraEnvFrom:
+    - secretRef:
+        name: object-store-keys
+
+persistence:
+  enabled: true
+  storageClassName: local-path
+  size: 10Gi
+
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: observability

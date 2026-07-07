@@ -1,0 +1,29 @@
+loki.write "default" {
+  endpoint {
+    url = "http://loki-gateway.observability.svc.cluster.local/loki/api/v1/push"
+  }
+
+  external_labels = {
+    cluster = "t2s",
+  }
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://observability-kube-prometh-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+    queue_config {
+      max_shards = 200
+      max_samples_per_send = 500
+      retry_on_http_429 = true
+    }
+  }
+}
+
+otelcol.exporter.otlp "default" {
+  endpoint {
+    url = "tempo.observability.svc.cluster.local:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
