@@ -11,9 +11,22 @@ metadata:
 spec:
   project: platform
   sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: loki
+      targetRevision: 7.0.0
+      helm:
+        releaseName: loki
+        valueFiles:
+          - $values/observability/loki/values.yaml
+    - repoURL: https://github.com/daryoush-safe/platform.git
+      targetRevision: master
+      ref: values
     - repoURL: https://github.com/daryoush-safe/platform.git
       targetRevision: master
       path: observability/loki
+      directory:
+        recurse: false
+        include: 'sealed-*.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
@@ -41,10 +54,23 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: platform
-  source:
-    repoURL: https://github.com/daryoush-safe/platform.git
-    targetRevision: master
-    path: observability/kube-prometheus-stack
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 87.2.1
+      helm:
+        releaseName: observability
+        valueFiles:
+          - $values/observability/kube-prometheus-stack/values.yaml
+    - repoURL: https://github.com/daryoush-safe/platform.git
+      targetRevision: master
+      ref: values
+    - repoURL: https://github.com/daryoush-safe/platform.git
+      targetRevision: master
+      path: observability/kube-prometheus-stack
+      directory:
+        recurse: false
+        include: 'sealed-*.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
@@ -54,6 +80,7 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
     retry:
       limit: 5
       backoff:
@@ -126,7 +153,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: exporters
+  name: kafka-exporter
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "2"
@@ -135,15 +162,63 @@ metadata:
 spec:
   project: platform
   sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: prometheus-kafka-exporter
+      targetRevision: 3.1.0
+      helm:
+        releaseName: kafka-exporter
+        valueFiles:
+          - $values/observability/kafka-exporter/values.yaml
     - repoURL: https://github.com/daryoush-safe/platform.git
       targetRevision: master
-      path: observability/kafka-exporter
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 5m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres-exporter
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: prometheus-postgres-exporter
+      targetRevision: 8.1.0
+      helm:
+        releaseName: postgres-exporter
+        valueFiles:
+          - $values/observability/postgres-exporter/values.yaml
+    - repoURL: https://github.com/daryoush-safe/platform.git
+      targetRevision: master
+      ref: values
     - repoURL: https://github.com/daryoush-safe/platform.git
       targetRevision: master
       path: observability/postgres-exporter
+      directory:
+        recurse: false
+        include: 'sealed-*.yaml'
   destination:
     server: https://kubernetes.default.svc
-    namespace: data
+    namespace: observability
   syncPolicy:
     automated:
       prune: true
@@ -169,9 +244,18 @@ metadata:
 spec:
   project: platform
   sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: alloy
+      targetRevision: 1.10.0
+      helm:
+        releaseName: alloy
+        valueFiles:
+          - $values/observability/alloy/values.yaml
     - repoURL: https://github.com/daryoush-safe/platform.git
       targetRevision: master
       ref: values
+    - repoURL: https://github.com/daryoush-safe/platform.git
+      targetRevision: master
       path: observability/alloy
   destination:
     server: https://kubernetes.default.svc

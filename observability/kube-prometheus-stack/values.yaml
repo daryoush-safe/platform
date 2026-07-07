@@ -9,6 +9,13 @@ extraManifests:
         secret: prometheus-basic-auth
 
 prometheus:
+  prometheusSpec:
+    enableRemoteWriteReceiver: true
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    scrapeConfigSelectorNilUsesHelmValues: false
+
   ingress:
     enabled: true
     ingressClassName: traefik

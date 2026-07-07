@@ -4,6 +4,9 @@ alloy:
     name: alloy-config
     key: "."
 
+  clustering:
+    enabled: true
+
   mounts:
     varlog: true
 

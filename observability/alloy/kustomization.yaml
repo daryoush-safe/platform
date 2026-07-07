@@ -11,4 +11,5 @@ configMapGenerator:
     files:
       - config/destinations.alloy
       - config/logs.alloy
-      # Add config/metrics.alloy / config/traces.alloy here later
+      - config/metrics.alloy
+      # Add config/traces.alloy here later

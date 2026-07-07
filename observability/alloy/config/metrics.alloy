@@ -1,0 +1,27 @@
+prometheus.operator.servicemonitors "primary" {
+  forward_to = [prometheus.remote_write.default.receiver]
+
+  clustering {
+    enabled = true
+  }
+
+  selector {
+    match_labels = {
+      release = "observability",
+    }
+  }
+}
+
+prometheus.operator.podmonitors "primary" {
+  forward_to = [prometheus.remote_write.default.receiver]
+
+  clustering {
+    enabled = true
+  }
+
+  selector {
+    match_labels = {
+      release = "observability",
+    }
+  }
+}
