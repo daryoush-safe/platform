@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/daryoush-safe/user-service
-  tag: sha-0c818b7e6207093410a678d1012c59061b9a7cdb
+  tag: sha-5829c4be41fb42d51df65a491307d5e868e27499
 app:
   port: 8000
 existingSecret: userservice-secrets
