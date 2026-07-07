@@ -13,6 +13,7 @@ spec:
     - https://github.com/daryoush-safe/platform.git
     - https://grafana.github.io/helm-charts
     - https://prometheus-community.github.io/helm-charts
+    - https://grafana-community.github.io/helm-charts
   destinations:
     - server: https://kubernetes.default.svc
       namespace: argocd
