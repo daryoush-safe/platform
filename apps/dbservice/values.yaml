@@ -16,6 +16,8 @@ env:
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /db
   OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy.observability.svc.cluster.local:4317
+  # Don't trace probe/scrape endpoints — they'd flood Tempo with noise.
+  OTEL_PYTHON_FASTAPI_EXCLUDED_URLS: "healthz,readyz,metrics"
 metrics:
   serviceMonitor:
     enabled: true
