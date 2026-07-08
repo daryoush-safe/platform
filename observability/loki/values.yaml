@@ -60,7 +60,7 @@ loki:
     max_chunk_age: 2h
     wal:
       enabled: true
-      dir: /var/loki/wal   # must be under the writable persistent mount (/var/loki); /loki is read-only rootfs
+      dir: /var/loki/wal
       checkpoint_duration: 5m
       flush_on_shutdown: true
 
