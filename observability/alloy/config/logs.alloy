@@ -39,8 +39,12 @@ discovery.relabel "pod_logs" {
   }
 }
 
+local.file_match "pods" {
+  path_targets = discovery.relabel.pod_logs.output
+}
+
 loki.source.file "pods" {
-  targets    = discovery.relabel.pod_logs.output
+  targets    = local.file_match.pods.targets
   forward_to = [loki.process.pods.receiver]
 }
 
