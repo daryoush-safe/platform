@@ -60,7 +60,7 @@ loki:
     max_chunk_age: 2h
     wal:
       enabled: true
-      dir: /loki/wal
+      dir: /var/loki/wal
       checkpoint_duration: 5m
       flush_on_shutdown: true
 

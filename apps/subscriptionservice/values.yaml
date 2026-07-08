@@ -19,6 +19,7 @@ env:
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /subscription
   OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy.observability.svc.cluster.local:4317
+  OTEL_PYTHON_FASTAPI_EXCLUDED_URLS: "healthz,readyz,metrics"
 metrics:
   serviceMonitor:
     enabled: true
