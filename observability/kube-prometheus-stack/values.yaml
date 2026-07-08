@@ -50,6 +50,17 @@ grafana:
     path: /
     pathType: Prefix
 
+  persistence:
+    enabled: true
+    type: pvc
+    storageClassName: local-path
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+
+  deploymentStrategy:
+    type: Recreate
+
   additionalDataSources:
     - name: Tempo
       type: tempo
