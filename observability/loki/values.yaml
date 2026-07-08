@@ -6,6 +6,8 @@ global:
         name: object-store-keys
 
 loki:
+  auth_enabled: false
+
   commonConfig:
     replication_factor: 1
 
