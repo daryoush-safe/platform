@@ -12,7 +12,7 @@ env:
   DB_ECHO: "false"
   DB_POOL_SIZE: "5"
   DB_MAX_OVERFLOW: "10"
-  PRUNER_BASE_URL: http://pruner.ml.svc.cluster.local:8000
+  JWT_ALGORITHM: HS256
   CORS_ORIGINS: http://localhost:3000
   ROOT_PATH: /db
   OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy.observability.svc.cluster.local:4317
