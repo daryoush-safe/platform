@@ -45,6 +45,9 @@ spec:
     repoURL: https://github.com/daryoush-safe/platform.git
     targetRevision: master
     path: data/postgres
+    directory:
+      recurse: true
+      exclude: "**/*.unsealed.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: data
