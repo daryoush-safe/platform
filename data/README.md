@@ -20,7 +20,7 @@ The same passwords are reused by the Step 4 service `DATABASE_URL`s.
 ```bash
 # Edit the plaintext sources (gitignored), then seal. Re-run after any password change.
 KS="kubeseal --controller-name sealed-secrets --controller-namespace kube-system --format yaml"
-for r in user-service-role subscription-service-role db-service-role debezium-role; do
+for r in user-service-role subscription-service-role db-service-role chat-service-role debezium-role; do
   $KS < data/postgres/roles/secret-$r.unsealed.yaml > data/postgres/roles/sealed-secret-$r.yaml
 done
 kubectl apply -f data/postgres/roles/      # controller unseals → pg-*-role Secrets
