@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/daryoush-safe/subscription-service
-  tag: sha-4cee576dc683c4d4feb8a68074d688ede105665a
+  tag: sha-be80a8783ba565ba497c2592ebbff7012303aad8
 app:
   port: 8001
 existingSecret: subscriptionservice-secrets
