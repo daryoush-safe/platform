@@ -1,6 +1,6 @@
 # Application services (namespace: `apps`)
 
-UserService, SubscriptionService, DBService — each a release of the parameterized
+UserService, SubscriptionService, DBService, ChatService — each a release of the parameterized
 `charts/microservice` chart. Each service owns a directory `apps/<svc>/` holding its
 `values.yaml` and its `sealed-secret.yaml` (+ gitignored `secret.unsealed.yaml`). Images are the
 GHCR CI builds (`ghcr.io/daryoush-safe/<svc>:sha-...`), pinned by tag; bridge them into
@@ -20,7 +20,7 @@ password must match the corresponding `pg-*-role` secret, and `JWT_SECRET` must 
 across all three so tokens validate cross-service.
 ```bash
 KS="kubeseal --controller-name sealed-secrets --controller-namespace kube-system --format yaml"
-for svc in userservice subscriptionservice dbservice; do
+for svc in userservice subscriptionservice dbservice chatservice; do
   $KS < apps/$svc/secret.unsealed.yaml > apps/$svc/sealed-secret.yaml
 done
 # No manual kubectl apply — the ApplicationSet syncs each apps/<svc>/sealed-secret.yaml
@@ -43,6 +43,7 @@ Manual `helm install` (bootstrap-only / break-glass, bypasses git):
 helm install userservice         charts/microservice -n apps -f apps/userservice/values.yaml
 helm install subscriptionservice charts/microservice -n apps -f apps/subscriptionservice/values.yaml
 helm install dbservice           charts/microservice -n apps -f apps/dbservice/values.yaml
+helm install chatservice         charts/microservice -n apps -f apps/chatservice/values.yaml
 ```
 
 ## Verify

@@ -35,6 +35,10 @@ spec:
         login: true
         replication: true
         passwordSecret: { name: pg-db-service-role }
+      - name: chat_service_role
+        ensure: present
+        login: true
+        passwordSecret: { name: pg-chat-service-role }
       - name: debezium_role
         ensure: present
         login: true
@@ -53,11 +57,13 @@ spec:
         - CREATE ROLE user_service_role LOGIN REPLICATION;
         - CREATE ROLE subscription_service_role LOGIN REPLICATION;
         - CREATE ROLE db_service_role LOGIN REPLICATION;
+        - CREATE ROLE chat_service_role LOGIN;
         - CREATE ROLE debezium_role LOGIN REPLICATION;
         - CREATE ROLE postgres_exporter LOGIN;
       postInitApplicationSQL:
         - CREATE SCHEMA IF NOT EXISTS auth;
         - CREATE SCHEMA IF NOT EXISTS dbservice;
+        - CREATE SCHEMA IF NOT EXISTS chatservice;
         - CREATE EXTENSION IF NOT EXISTS pgcrypto;
         - GRANT CREATE ON DATABASE fastapi_ms TO user_service_role;
         - GRANT CREATE ON DATABASE fastapi_ms TO subscription_service_role;
@@ -68,6 +74,8 @@ spec:
         - GRANT USAGE ON SCHEMA auth TO debezium_role;
         - GRANT USAGE, CREATE ON SCHEMA dbservice TO db_service_role;
         - GRANT USAGE ON SCHEMA dbservice TO debezium_role;
+        - GRANT CREATE ON DATABASE fastapi_ms TO chat_service_role;
+        - GRANT USAGE, CREATE ON SCHEMA chatservice TO chat_service_role;
         - ALTER DEFAULT PRIVILEGES FOR ROLE user_service_role IN SCHEMA auth GRANT SELECT ON TABLES TO debezium_role;
         - ALTER DEFAULT PRIVILEGES FOR ROLE subscription_service_role IN SCHEMA auth GRANT SELECT ON TABLES TO debezium_role;
         - ALTER DEFAULT PRIVILEGES FOR ROLE db_service_role IN SCHEMA dbservice GRANT SELECT ON TABLES TO debezium_role;
