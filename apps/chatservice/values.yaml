@@ -18,7 +18,7 @@ env:
   KAFKA_BOOTSTRAP_SERVERS: kafka-kafka-bootstrap.data.svc.cluster.local:9092
   DBSERVICE_URL: http://dbservice.apps.svc.cluster.local
   DBSERVICE_TIMEOUT: "10.0"
-  MLSERVICE_URL: http://sqlgen-serve.ml.svc.cluster.local:8000
+  MLSERVICE_URL: http://10.179.201.1:8080
   MLSERVICE_STREAM_PATH: /stream-query
   MLSERVICE_TIMEOUT: "120.0"
   OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy.observability.svc.cluster.local:4317
