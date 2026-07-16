@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/daryoush-safe/chat-service
-  tag: sha-be80a8783ba565ba497c2592ebbff7012303aad8
+  tag: sha-60300ee8ca4f920cd0d1aa95ca0774b931508bdd
 app:
   port: 8004
 existingSecret: chatservice-secrets
