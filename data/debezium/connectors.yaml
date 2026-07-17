@@ -90,7 +90,7 @@ spec:
     table.include.list: dbservice.queries_outbox
     plugin.name: pgoutput
     publication.name: dbz_publication_db
-    publication.autocreate.mode: disabled
+    publication.autocreate.mode: filtered
     slot.name: debezium_dbservice
     tombstones.on.delete: "false"
     transforms: outbox

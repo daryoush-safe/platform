@@ -81,4 +81,5 @@ spec:
         - ALTER DEFAULT PRIVILEGES FOR ROLE db_service_role IN SCHEMA dbservice GRANT SELECT ON TABLES TO debezium_role;
         - GRANT user_service_role TO debezium_role;
         - GRANT subscription_service_role TO debezium_role;
+        - GRANT db_service_role TO debezium_role;
         - GRANT pg_monitor TO postgres_exporter;
